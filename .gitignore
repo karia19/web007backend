@@ -1,0 +1,4 @@
+node_modules
+.env
+mogoConnection.js
+passwordConnection.js

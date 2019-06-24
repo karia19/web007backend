@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <title>Pekka Web Update</title>
+
+
+</head>
+<body>
+    <div class="container">
+    <h2 class="text-center display-4 my-4">Upload images</h2>
+    <p class="text-center display-10 my-10">Tästä voit vaihtaa kuvaa valitsemalla ensin
+     kuvan mikä vaihdetaan ja sitten valitsemalla tilalle uuden</p>
+
+    <div class="row">
+     <div class="col-sm-6">
+        <div class="form-group mp-3">
+
+          <label for="sel1">Valitse kuva mikä vaihdetaan</label>
+           <form action="/upload", method="POST"  enctype="multipart/form-data">
+            <select  name="lista" class="form-control" id="sel1">
+              <option value="news">News</option>
+              <option value="etusivuEka">Etusivu eka</option>
+              <option value="etusivuTokaVasen">Etusivu toka vasen</option>
+              <option value="etusivuTokaOikea">Etusivu toka oikea</option>
+              <option value="etusivuAlin">Etusivu alin</option>
+            </select>
+          
+      <p>Muista kuva formaatti jpg tai jpeg</p>
+         
+             <input  type="file" name="file" id="file">
+        
+             <button class="btn btn-light">Send</button>
+          </form>
+
+         
+      </div>
+     </div>
+      
+
+      
+      </div>
+      <hr>
+      <div class="row">
+      <div class="col-sm-4"> 
+          <p>News</p>  
+          <img src="http://localhost:3003/files/news" width="100%" height="230">
+      </div>
+      <div class="col-sm-4">    
+          <p>Etusivu eka</p>
+          <img src="http://localhost:3003/files/etusivuEka" width="100%" height="230">
+      </div>
+      <div class="col-sm-4">
+          <p>Etusivu toka vasen</p>    
+          <img src="http://localhost:3003/files/etusivuTokaVasen" width="100%" height="230">
+      </div>
+
+    </div>
+    </div>
+
+   
+   
+    
+</body>
+</html>
