@@ -36,6 +36,7 @@ loginRouter.post('/register', async (req, res) => {
    
 })
 */
+
 loginRouter.post('/register', async (req, res) => {
     try {
         const response = req.body
@@ -52,9 +53,7 @@ loginRouter.post('/register', async (req, res) => {
             id: user._id
         }
 
-        const token = jwt.sign(userForToken, process.env.SECRET, { 
-            expiresIn: "1h"
-        })
+        const token = jwt.sign(userForToken, process.env.SECRET)
         res.status(200).send({ token, username: user.username })
 
     } catch (e) {

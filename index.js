@@ -5,7 +5,6 @@ const bodyparser = require('body-parser')
 const cors = require('cors')
 const multer = require('multer');
 const mongoose = require('mongoose');
-const mongoImage = require('./models/image');
 const crypto = require('crypto');
 const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
@@ -48,12 +47,12 @@ app.use('/api', loginRouter);
 
 
 
-app.get('/testi', async (req, res) => {
-  gfs.files.deleteOne({ filename: "news" })
+app.post('/testi', async (req, res) => {
+  gfs.files.deleteOne({ filename: "a14bda4edb6fe7c8616fa40b9faba492.jpg" })
   res.redirect('/')
 })
 
-app.get('/', async (req, res) => {
+app.get('/react', async (req, res) => {
     res.render('first')
     
    
@@ -66,8 +65,10 @@ app.post('/api/form', async (req, res)  => {
 })
 
 /// Upload image to MongoDb ///
-app.post('/upload', upload.single('file'),  async (req, res) => {
-    //var gfs =  Grid(own.conn.db, mongoose.mongo);  
+app.post('/upload', checkAuth, upload.single('file'),  async (req, res) => {
+  try {
+    console.log(req.file);
+    console.log(req.body.lista);
     const re = await gfs.files.findOne({ filename: req.body.lista })
     if (re.lenght === null){
       res.status(404).json({ warning: "no images found for delete"})
@@ -75,8 +76,27 @@ app.post('/upload', upload.single('file'),  async (req, res) => {
       await gfs.files.deleteOne({ filename: req.body.lista })
     }
    // await gfs.files.deleteOne({ filename: "news"})
-    console.log(req.file);   
+   
+
+
+
+  }catch (e) {
+    res.send(401).json({ warning: "Something went horrible wrong "})
+  }
+    //var gfs =  Grid(own.conn.db, mongoose.mongo);  
+    /*
+    const re = await gfs.files.findOne({ filename: req.body.lista })
+    if (re.lenght === null){
+      res.status(404).json({ warning: "no images found for delete"})
+    } else {
+      await gfs.files.deleteOne({ filename: req.body.lista })
+    }
+   // await gfs.files.deleteOne({ filename: "news"})
+    console.log(req.file);
+     
     res.redirect('/');
+    */
+   res.sendStatus(200)
 })
 
 app.get('/files', async  (req, res) => {
