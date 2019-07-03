@@ -10,7 +10,7 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
 const path = require('path')
-
+const nodemailer = require('nodemailer');
 const checkAuth = require('./middleware/check-auth')
 
 // Models folder stuff ///
@@ -20,6 +20,7 @@ const passOwn = require('./passwordConnection')
 //const upload = multer({ dest: 'uploads/' });
 
 const loginRouter = require('./controllers/login');
+const emailRouter = require('./controllers/mail');
 
 const app = express();
 
@@ -29,6 +30,8 @@ app.use(morgan('tiny'));
 app.use(cors());
 app.use(methodOverride('_method'));
 app.set('view engine' , 'ejs')
+app.use(express.static('build'))
+
 
 require('dotenv').config()
 
@@ -44,7 +47,45 @@ const upload = multer({ storage });
 /// Login ///
 app.use('/api', loginRouter);
 
+/// Mail ///
+app.use('/lomake', emailRouter );
+/*
+const transport = nodemailer.createTransport({
+    
+  service: 'gmail',
+  auth: {
+      user: process.env.EMAIL_ADRESS ,
+      pass: process.env.EMAIL_PASSWORD
+  }
+})
 
+
+app.post('/lomake', async (req, res) => {
+ 
+  const uusi = await req.body
+  var mailOptions = {
+    from: 'youremail@gmail.com',
+    replyTo: uusi.replyTo,
+    to: process.env.EMAIL_ADRESS,
+    subject: uusi.subject,
+    text: uusi.text
+  };
+  res.type('application/json');
+  
+ 
+  transport.sendMail(mailOptions, (err, info) => {
+      if(info){
+          res.status(200).send({ message: 'viesti onnistui'})
+      } else {
+          console.log(err)
+          res.status(401).send({ message: "Error" })
+      }
+      
+  })
+  
+
+})
+*/
 
 
 app.post('/testi', async (req, res) => {
@@ -65,38 +106,9 @@ app.post('/api/form', async (req, res)  => {
 })
 
 /// Upload image to MongoDb ///
-app.post('/upload', checkAuth, upload.single('file'),  async (req, res) => {
-  try {
-    console.log(req.file);
-    console.log(req.body.lista);
-    const re = await gfs.files.findOne({ filename: req.body.lista })
-    if (re.lenght === null){
-      res.status(404).json({ warning: "no images found for delete"})
-    } else {
-      await gfs.files.deleteOne({ filename: req.body.lista })
-    }
-   // await gfs.files.deleteOne({ filename: "news"})
-   
-
-
-
-  }catch (e) {
-    res.send(401).json({ warning: "Something went horrible wrong "})
-  }
-    //var gfs =  Grid(own.conn.db, mongoose.mongo);  
-    /*
-    const re = await gfs.files.findOne({ filename: req.body.lista })
-    if (re.lenght === null){
-      res.status(404).json({ warning: "no images found for delete"})
-    } else {
-      await gfs.files.deleteOne({ filename: req.body.lista })
-    }
-   // await gfs.files.deleteOne({ filename: "news"})
-    console.log(req.file);
-     
-    res.redirect('/');
-    */
-   res.sendStatus(200)
+app.post('/upload' , upload.single('file'),  async (req, res) => {
+  console.log(req.file)
+  res.sendStatus(200)
 })
 
 app.get('/files', async  (req, res) => {
@@ -125,7 +137,20 @@ app.get('/files/:name', async  (req, res) => {
      } else {
        return res.status(404).send({ warning: "content not a image"})
      }
- })
+})
+
+
+app.delete('/files/:id', checkAuth, (req, res) => {
+  gfs.remove({ _id: req.params.id, root: 'uploads'}, (err, file) => {
+      if (err) {
+          return res.status(404).json({ error: "Something went wriong"})
+      }
+
+      res.status(200)
+  })
+});
+
+
 
 
 

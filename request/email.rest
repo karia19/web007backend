@@ -1,0 +1,11 @@
+
+POST http://localhost:3003/lomake
+Content-Type: application/json
+
+{
+    "from": "even@gmmmm.com",
+    "to": "vastarak@gmail.com",
+    "replyTo": "evel@netti.com",
+    "subject": "tuleeko",
+    "text": "Oma kokke"
+}
