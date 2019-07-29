@@ -12,6 +12,11 @@ const methodOverride = require('method-override');
 const path = require('path')
 const nodemailer = require('nodemailer');
 const checkAuth = require('./middleware/check-auth')
+const vhost = require("vhost")
+const fs = require('fs')
+const app = express();
+const http = require('http')
+const https = require('https')
 
 // Models folder stuff ///
 const storage = require('./models/Grid')
@@ -22,7 +27,42 @@ const passOwn = require('./passwordConnection')
 const loginRouter = require('./controllers/login');
 const emailRouter = require('./controllers/mail');
 
-const app = express();
+/*
+//// Make letsencrupt //////
+
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/pekkaparviainen.com/privkey.pem', 'utf8')
+const certificate = fs.readFileSync('etc/letsencrypt/live/pekkaparviainen.com/fullchain.pem', 'utf8')
+const ca = fs.readFileSync('/etc/letsencrypt/live/pekkaparviainen.com/chain.pem', 'utf8')
+
+const credentials = {
+     key: privateKey,
+     cert: certificate,
+     ca: ca
+}
+
+app.get('/', (req, res) => {
+    res.redirect('https://pekkaparviainen.com/home/')
+})
+
+
+/// 30 2 * * 1 /opt/letsencrypt/letsencrypt-auto certonly --webroot -w /home/user/node-https-example/client/www -d www.node-https-example.com -d node-https-example.com >> /var/log/le-renew.log
+
+
+*/
+
+app.get('/' , (req, res, next) => {
+  res.redirect('/home/');
+})
+
+/// Route different Sites ///
+app.use(express.static('buildweb'))
+app.use(express.static('build'))
+//app.use(express.static(path.join(__dirname, 'buildweb')))
+//app.use('/pekkauserinterface', express.static(path.join(__dirname, 'build')))
+
+
+
+//// More Config ////
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: false }));
@@ -30,17 +70,73 @@ app.use(morgan('tiny'));
 app.use(cors());
 app.use(methodOverride('_method'));
 app.set('view engine' , 'ejs')
-app.use(express.static('build'))
+
+//app.use(express.static('build'));
+//app.use(express.static("buildFront"))
 
 
 require('dotenv').config()
 
 let gfs;
 
+
+
+/*
+app.use(express.static(path.join(__dirname, 'build')));
+
+*/
+
+
+
+/*
+app.get('/pekkauserinterface', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+
+app.get('./*', function (req, res) {
+  console.log("What")
+  res.sendFile(path.join(__dirname, 'buildweb', 'index.html'));
+});
+*/
+// Admin paths
+app.use('/pekkauserinterface', express.static(path.join(__dirname, 'build')))
+app.get('/pekkauserinterface', function (req, res) {
+ res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+// Site path
+app.use('/home', express.static(path.join(__dirname, 'buildweb')))
+
+app.get('/home/*', function (req, res) {
+ res.sendFile(path.join(__dirname, 'buildweb', 'index.html'));
+});
+
+
+/*
+
+//// Connetct mongo to local datbase ////
+
+const mongoUri = 'mongodb://localhost:27017/myapp'
+const conn = mongoose.createConnection(mongoUri , { useNewUrlParser: true } );
+
+
+
+conn.once('open', () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection('uploads');
+})
+
+*/
+
+
+
 own.conn.once('open', () => {
     gfs = Grid(own.conn.db, mongoose.mongo);
     gfs.collection('uploads');
 })
+
+
 
 const upload = multer({ storage });
 
@@ -87,18 +183,6 @@ app.post('/lomake', async (req, res) => {
 })
 */
 
-
-app.post('/testi', async (req, res) => {
-  gfs.files.deleteOne({ filename: "a14bda4edb6fe7c8616fa40b9faba492.jpg" })
-  res.redirect('/')
-})
-
-app.get('/react', async (req, res) => {
-    res.render('first')
-    
-   
-})
-
 app.post('/api/form', async (req, res)  => {
     const m = await req.body;
     res.send("ok");
@@ -106,12 +190,12 @@ app.post('/api/form', async (req, res)  => {
 })
 
 /// Upload image to MongoDb ///
-app.post('/upload' , upload.single('file'),  async (req, res) => {
+app.post('/api/upload' ,checkAuth, upload.single('file'),  async (req, res) => {
   console.log(req.file)
   res.sendStatus(200)
 })
 
-app.get('/files', async  (req, res) => {
+app.get('/api/files', async  (req, res) => {
    // var gfs =  Grid(own.conn.db, mongoose.mongo);
     const re = await gfs.files.find().toArray()
 
@@ -122,7 +206,7 @@ app.get('/files', async  (req, res) => {
     }    
 })
 
-app.get('/files/:name', async  (req, res) => {
+app.get('/api/files/:name', async  (req, res) => {
      const b = await req.params;
     // var gfs =  Grid(own.conn.db, mongoose.mongo);
      const re = await gfs.files.findOne({ filename: b.name})
@@ -140,13 +224,14 @@ app.get('/files/:name', async  (req, res) => {
 })
 
 
-app.delete('/files/:id', checkAuth, (req, res) => {
-  gfs.remove({ _id: req.params.id, root: 'uploads'}, (err, file) => {
-      if (err) {
-          return res.status(404).json({ error: "Something went wriong"})
-      }
 
-      res.status(200)
+app.delete('/api/files/:id',checkAuth,   (req, res) => {
+  gfs.remove({ _id: req.params.id, root: 'uploads'}, async (err, file) => {
+      if (err) {
+          return res.status(404).json({ error: "Something went wrong"})
+      } 
+      const re = await gfs.files.find().toArray()
+      return res.status(200).json(re);
   })
 });
 
@@ -157,3 +242,19 @@ app.delete('/files/:id', checkAuth, (req, res) => {
 PORT = 3003
 console.log(PORT)
 app.listen(PORT)
+
+/*
+
+//// Http and Https servers ////
+const httpServer = http.createServer(app)
+const httpsServer = https.createServer(credentials, app)
+
+httpServer.listen(80, () => {
+  
+})
+
+httpsServer.listen(443, () => {
+
+})
+
+*/

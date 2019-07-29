@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/pekkauserinterface/static/css/main.71c435be.chunk.css",
+    "main.js": "/pekkauserinterface/static/js/main.0e126ff6.chunk.js",
+    "main.js.map": "/pekkauserinterface/static/js/main.0e126ff6.chunk.js.map",
+    "runtime~main.js": "/pekkauserinterface/static/js/runtime~main.d13f75ac.js",
+    "runtime~main.js.map": "/pekkauserinterface/static/js/runtime~main.d13f75ac.js.map",
+    "static/js/2.4d163ac0.chunk.js": "/pekkauserinterface/static/js/2.4d163ac0.chunk.js",
+    "static/js/2.4d163ac0.chunk.js.map": "/pekkauserinterface/static/js/2.4d163ac0.chunk.js.map",
+    "index.html": "/pekkauserinterface/index.html",
+    "precache-manifest.c1bff25e6b09d79cbdbff9b794cf5955.js": "/pekkauserinterface/precache-manifest.c1bff25e6b09d79cbdbff9b794cf5955.js",
+    "service-worker.js": "/pekkauserinterface/service-worker.js",
+    "static/css/main.71c435be.chunk.css.map": "/pekkauserinterface/static/css/main.71c435be.chunk.css.map",
+    "static/media/login.css": "/pekkauserinterface/static/media/kuva1.1e91761d.jpg"
+  }
+}
